@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración EMATP</title>
+  <link rel="stylesheet" href="style2.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <a href="#">Inicio</a>
+    <div class="dropdown">
+      <a href="#" class="dropbtn">Listas</a>
+      <div class="dropdown-content">
+        <a href="index (1).html">Inicio</a>
+        <a href="Profesores.html">Profesores</a>
+        <a href="Stock.html">Stock</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1><b>Administración EMATP</b></h1>
+  </div>
+
+  <!-- BOTONES PRINCIPALES -->
+  <div class="btn-container">
+    <button class="btn-large" onclick="openModal('modalAgregar')">Agregar usuario</button>
+  </div>
+  <div class="btn-container">
+    <button class="btn-large" onclick="openModal('modalEliminar')">Eliminar usuario</button>
+  </div>
+  <div class="btn-container">
+    <button class="btn-large" onclick="openModal('modalCambiar')">Cambiar contraseña</button>
+  </div>
+
+  <!-- MODAL AGREGAR USUARIO -->
+  <div id="modalAgregar" class="modal">
+    <div class="modal-content">
+      <h2>Agregar usuario</h2>
+      <form>
+        <label>Correo electrónico</label>
+        <input type="email" required>
+        <label>Nombre de usuario</label>
+        <input type="text" required>
+        <label>Contraseña</label>
+        <input type="password" required>
+        <label>Confirmar contraseña</label>
+        <input type="password" required>
+        <div class="form-buttons">
+          <button type="submit" class="btn">Guardar</button>
+          <button type="button" class="btn reset" onclick="closeModal('modalAgregar')">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL ELIMINAR USUARIO -->
+  <div id="modalEliminar" class="modal">
+    <div class="modal-content">
+      <h2>Eliminar usuario</h2>
+      <p>¿Está seguro de que desea eliminar este usuario?</p>
+      <div class="form-buttons">
+        <button class="btn">Sí</button>
+        <button class="btn reset" onclick="closeModal('modalEliminar')">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CAMBIAR CONTRASEÑA -->
+  <div id="modalCambiar" class="modal">
+    <div class="modal-content">
+      <h2>Cambiar contraseña</h2>
+      <form>
+        <label>Usuario o correo electrónico</label>
+        <input type="text" required>
+        <label>Nueva contraseña</label>
+        <input type="password" required>
+        <label>Confirmar nueva contraseña</label>
+        <input type="password" required>
+        <div class="form-buttons">
+          <button type="submit" class="btn">Guardar</button>
+          <button type="button" class="btn reset" onclick="closeModal('modalCambiar')">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRIPT PARA MODALES -->
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = "flex";
+    }
+    function closeModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
+    window.onclick = function(event) {
+      const modals = document.querySelectorAll(".modal");
+      modals.forEach(modal => {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

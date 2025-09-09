@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock de Materiales</title>
+    <link rel="stylesheet" href="style2.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html">Inicio</a>
+        <a href="index.html#openForm">Nuevo Registro</a>
+        <div class="dropdown">
+            <a href="#" class="dropbtn">Listas</a>
+            <div class="dropdown-content">
+                <a href="index (1).html">Inicio</a>
+                <a href="Profesores.html">Profesores</a>
+                <a href="admin.html">Administración</a>
+            </div>
+        </div>
+    </nav>
+    <header class="header">
+        <h1>Stock</h1>
+        </header>
+
+    <section class="filters">
+        <label for="filtroNombre">Nombre</label>
+        <input type="text" id="filtroNombre">
+        <button id="btnBuscar" class="btn">Buscar</button>
+        <button id="btnReset" class="btn reset">Reiniciar filtros</button>
+    </section>
+
+    <div class="btn-container">
+        <button id="openForm" class="btn-large">Cargar nuevo producto</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Objeto</th>
+                <th>Nombre</th>
+                <th>Estado</th>
+                <th>Cantidad</th>
+                <th>Anotaciones</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="productos">
+            </tbody>
+    </table>
+
+    <div id="formModal" class="modal">
+        <div class="modal-content">
+            <h2 id="formTitle">Nuevo Producto</h2>
+            <form id="productoForm">
+                <label>Objeto:
+                    <select name="objeto" required>
+                        <option value="Cargador">Cargador</option>
+                        <option value="Mouse">Mouse</option>
+                        <option value="Teclado">Teclado</option>
+                        <option value="#">#</option>
+                    </select>
+                </label>
+                <label>Nombre: <input type="text" name="nombre" required></label>
+                <label>Estado:
+                    <select name="estado" required>
+                        <option value="Bueno">Bueno</option>
+                        <option value="Medio">Medio</option>
+                        <option value="Malo">Malo</option>
+                    </select>
+                </label>
+                <label>Cantidad: <input type="number" name="cantidad" required min="1"></label>
+                <label>Anotaciones: <textarea name="anotaciones"></textarea></label>
+                <div class="form-buttons">
+                    <button type="submit" class="btn">Guardar</button>
+                    <button type="button" id="closeForm" class="btn reset">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById("formModal");
+        const openForm = document.getElementById("openForm");
+        const closeForm = document.getElementById("closeForm");
+        const productoForm = document.getElementById("productoForm");
+        const productosBody = document.getElementById("productos");
+        const filtroNombre = document.getElementById("filtroNombre");
+        const btnBuscar = document.getElementById("btnBuscar");
+        const btnReset = document.getElementById("btnReset");
+
+        let editIndex = null;
+
+        // Abrir modal
+        openForm.onclick = () => {
+            editIndex = null;
+            productoForm.reset();
+            document.getElementById("formTitle").textContent = "Nuevo Producto";
+            modal.style.display = "flex";
+        };
+
+        // Cerrar modal
+        closeForm.onclick = () => modal.style.display = "none";
+
+        // Guardar/editar producto
+        productoForm.onsubmit = (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(productoForm));
+
+            if (editIndex === null) {
+                // Nuevo producto
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${data.nombre}</td>
+                    <td>${data.estado}</td>
+                    <td>${data.cantidad}</td>
+                    <td>${data.anotaciones || ""}</td>
+                    <td>
+                        <button class="btn edit">✏️</button>
+                        <button class="btn delete">🗑️</button>
+                    </td>
+                `;
+                productosBody.appendChild(row);
+
+                // Eventos editar/borrar
+                row.querySelector(".edit").onclick = () => editarProducto(row);
+                row.querySelector(".delete").onclick = () => borrarProducto(row);
+
+            } else {
+                // Editar existente
+                const row = productosBody.children[editIndex];
+                row.children[0].textContent = data.nombre;
+                row.children[1].textContent = data.estado;
+                row.children[2].textContent = data.cantidad;
+                row.children[3].textContent = data.anotaciones || "";
+            }
+
+            productoForm.reset();
+            modal.style.display = "none";
+        };
+
+        // Editar producto
+        function editarProducto(row) {
+            editIndex = Array.from(productosBody.children).indexOf(row);
+            document.getElementById("formTitle").textContent = "Editar Producto";
+
+            productoForm.nombre.value = row.children[0].textContent;
+            productoForm.estado.value = row.children[1].textContent;
+            productoForm.cantidad.value = row.children[2].textContent;
+            productoForm.anotaciones.value = row.children[3].textContent;
+
+            modal.style.display = "flex";
+        }
+
+        // Borrar producto
+        function borrarProducto(row) {
+            if (confirm("¿Estás seguro de borrar este producto?")) {
+                row.remove();
+            }
+        }
+
+        // Buscar por nombre
+        btnBuscar.onclick = () => {
+            const filtro = filtroNombre.value.toLowerCase();
+            for (let row of productosBody.children) {
+                const nombre = row.children[0].textContent.toLowerCase();
+                row.style.display = (filtro && !nombre.includes(filtro)) ? "none" : "";
+            }
+        };
+
+        // Reiniciar filtros
+        btnReset.onclick = () => {
+            filtroNombre.value = "";
+            for (let row of productosBody.children) {
+                row.style.display = "";
+            }
+        };
+    </script>
+</body>
+</html>

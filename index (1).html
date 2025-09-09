@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Material Informático</title>
+    <link rel="stylesheet" href="style2.css">
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="#">Inicio</a>
+    <a href="#">Nuevo Registro</a>
+    <div class="dropdown">
+        <a href="#" class="dropbtn">Listas</a>
+        <div class="dropdown-content">
+            <a href="Stock.html">Stock</a>
+            <a href="Profesores.html">Profesores</a>
+            <a href="admin.html">Administración</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Encabezado -->
+<header class="header">
+    <h1>Registro Material Informático</h1>
+
+      <img src="images (2).jfif" alt="Escudo" class="logo-left">
+    
+</header>
+
+    <!-- Filtros -->
+    <section class="filters">
+        <label for="filtroFecha">Fecha</label>
+        <input type="date" id="filtroFecha">
+        <button id="btnBuscar" class="btn">Buscar</button>
+        <button id="btnReset" class="btn reset">Reiniciar registros</button>
+    </section>
+
+    <!-- Botón para abrir formulario -->
+    <div class="btn-container">
+        <button id="openForm" class="btn-large">Cargar nuevo registro</button>
+    </div>
+
+    <!-- Tabla de registros -->
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Cargo</th>
+                <th>Nombre y Apellido</th>
+                <th>Curso</th>
+                <th>Material Prestado</th>
+                <th>Material Devuelto</th>
+                <th>Fecha Devolución</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="registros"></tbody>
+    </table>
+
+    <!-- Formulario modal oculto -->
+    <div id="formModal" class="modal">
+        <div class="modal-content">
+            <h2 id="formTitle">Nuevo Registro</h2>
+            <form id="registroForm">
+                <label>Fecha: <input type="date" name="fecha" required></label>
+                <label>Hora: <input type="time" name="hora" required></label>
+                <label>Cargo: <input type="text" name="cargo" required></label>
+                <label>Nombre y Apellido: <input type="text" name="nombre" required></label>
+                <label>Curso: <input type="text" name="curso" required></label>
+                <label>Material Prestado: <input type="text" name="prestado" required></label>
+                <label>Material Devuelto: <input type="text" name="devuelto"></label>
+                <label>Fecha Devolución: <input type="date" name="fechaDevolucion"></label>
+                <div class="form-buttons">
+                    <button type="submit" class="btn">Guardar</button>
+                    <button type="button" id="closeForm" class="btn reset">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById("formModal");
+        const openForm = document.getElementById("openForm");
+        const closeForm = document.getElementById("closeForm");
+        const registroForm = document.getElementById("registroForm");
+        const registros = document.getElementById("registros");
+        const filtroFecha = document.getElementById("filtroFecha");
+        const btnBuscar = document.getElementById("btnBuscar");
+        const btnReset = document.getElementById("btnReset");
+
+        let editIndex = null;
+
+        // Abrir modal
+        openForm.onclick = () => {
+            editIndex = null;
+            registroForm.reset();
+            document.getElementById("formTitle").textContent = "Nuevo Registro";
+            modal.style.display = "flex";
+        };
+
+        // Cerrar modal
+        closeForm.onclick = () => modal.style.display = "none";
+
+        // Guardar registro
+        registroForm.onsubmit = (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(registroForm));
+
+            if (editIndex === null) {
+                // Nuevo registro
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${data.fecha}</td>
+                    <td>${data.hora}</td>
+                    <td>${data.cargo}</td>
+                    <td>${data.nombre}</td>
+                    <td>${data.curso}</td>
+                    <td>${data.prestado}</td>
+                    <td>${data.devuelto || ""}</td>
+                    <td>${data.fechaDevolucion || ""}</td>
+                    <td>
+                        <button class="btn edit">✏️</button>
+                        <button class="btn delete">🗑️</button>
+                    </td>
+                `;
+                registros.appendChild(row);
+
+                // Eventos editar/borrar
+                row.querySelector(".edit").onclick = () => editarRegistro(row);
+                row.querySelector(".delete").onclick = () => borrarRegistro(row);
+
+            } else {
+                // Editar existente
+                const row = registros.children[editIndex];
+                row.children[0].textContent = data.fecha;
+                row.children[1].textContent = data.hora;
+                row.children[2].textContent = data.cargo;
+                row.children[3].textContent = data.nombre;
+                row.children[4].textContent = data.curso;
+                row.children[5].textContent = data.prestado;
+                row.children[6].textContent = data.devuelto || "";
+                row.children[7].textContent = data.fechaDevolucion || "";
+            }
+
+            registroForm.reset();
+            modal.style.display = "none";
+        };
+
+        // Editar registro
+        function editarRegistro(row) {
+            editIndex = Array.from(registros.children).indexOf(row);
+            document.getElementById("formTitle").textContent = "Editar Registro";
+
+            registroForm.fecha.value = row.children[0].textContent;
+            registroForm.hora.value = row.children[1].textContent;
+            registroForm.cargo.value = row.children[2].textContent;
+            registroForm.nombre.value = row.children[3].textContent;
+            registroForm.curso.value = row.children[4].textContent;
+            registroForm.prestado.value = row.children[5].textContent;
+            registroForm.devuelto.value = row.children[6].textContent;
+            registroForm.fechaDevolucion.value = row.children[7].textContent;
+
+            modal.style.display = "flex";
+        }
+
+        // Borrar registro individual
+        function borrarRegistro(row) {
+            if (confirm("¿Estás seguro de borrar este registro?")) {
+                row.remove();
+            }
+        }
+
+        // Buscar por fecha
+        btnBuscar.onclick = () => {
+            const filtro = filtroFecha.value;
+            for (let row of registros.children) {
+                const fecha = row.children[0].textContent;
+                row.style.display = (filtro && fecha !== filtro) ? "none" : "";
+            }
+        };
+
+        // Reiniciar registros (borra todos)
+        btnReset.onclick = () => {
+            if (confirm("⚠️ ¿Estás seguro de borrar TODOS los registros?")) {
+                registros.innerHTML = "";
+                filtroFecha.value = "";
+            }
+        };
+    </script>
+</body>
+</html>

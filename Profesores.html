@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Profesores</title>
+    <link rel="stylesheet" href="style2.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html">Inicio</a>
+        <a href="index.html#openForm">Nuevo Registro</a>
+        <div class="dropdown">
+            <a href="#" class="dropbtn">Listas</a>
+            <div class="dropdown-content">
+                <a href="Stock.html">Stock</a>
+                <a href="index (1).html">Inicio</a>
+                <a href="admin.html">Administración</a>
+            </div>
+        </div>
+    </nav>
+    <header class="header">
+        <h1>Registro de Profesores</h1>
+    </header>
+
+    <section class="filters">
+        <label for="filtroNombre">Nombre o Apellido</label>
+        <input type="text" id="filtroNombre">
+        <button id="btnBuscar" class="btn">Buscar</button>
+        <button id="btnReset" class="btn reset">Reiniciar filtros</button>
+    </section>
+
+    <div class="btn-container">
+        <button id="openForm" class="btn-large">Cargar nuevo profesor</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Correo Electrónico</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="profesores">
+            </tbody>
+    </table>
+
+    <div id="formModal" class="modal">
+        <div class="modal-content">
+            <h2 id="formTitle">Nuevo Profesor</h2>
+            <form id="profesorForm">
+                <label>Nombre: <input type="text" name="nombre" required></label>
+                <label>Apellido: <input type="text" name="apellido" required></label>
+                <label>Correo Electrónico: <input type="email" name="email" required></label>
+                <label>Teléfono: <input type="tel" name="telefono"></label>
+                <div class="form-buttons">
+                    <button type="submit" class="btn">Guardar</button>
+                    <button type="button" id="closeForm" class="btn reset">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById("formModal");
+        const openForm = document.getElementById("openForm");
+        const closeForm = document.getElementById("closeForm");
+        const profesorForm = document.getElementById("profesorForm");
+        const profesoresBody = document.getElementById("profesores");
+        const filtroNombre = document.getElementById("filtroNombre");
+        const btnBuscar = document.getElementById("btnBuscar");
+        const btnReset = document.getElementById("btnReset");
+
+        let editIndex = null;
+
+        // Abrir modal
+        openForm.onclick = () => {
+            editIndex = null;
+            profesorForm.reset();
+            document.getElementById("formTitle").textContent = "Nuevo Profesor";
+            modal.style.display = "flex";
+        };
+
+        // Cerrar modal
+        closeForm.onclick = () => modal.style.display = "none";
+
+        // Guardar/editar profesor
+        profesorForm.onsubmit = (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(profesorForm));
+
+            // Validación de correo electrónico
+            if (!data.email.includes('@')) {
+                alert("Por favor, ingrese un correo electrónico válido.");
+                return;
+            }
+
+            if (editIndex === null) {
+                // Nuevo profesor
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${data.nombre}</td>
+                    <td>${data.apellido}</td>
+                    <td>${data.email}</td>
+                    <td>${data.telefono || ""}</td>
+                    <td>
+                        <button class="btn edit">✏️</button>
+                        <button class="btn delete">🗑️</button>
+                    </td>
+                `;
+                profesoresBody.appendChild(row);
+
+                // Eventos editar/borrar
+                row.querySelector(".edit").onclick = () => editarProfesor(row);
+                row.querySelector(".delete").onclick = () => borrarProfesor(row);
+
+            } else {
+                // Editar existente
+                const row = profesoresBody.children[editIndex];
+                row.children[0].textContent = data.nombre;
+                row.children[1].textContent = data.apellido;
+                row.children[2].textContent = data.email;
+                row.children[3].textContent = data.telefono || "";
+            }
+
+            profesorForm.reset();
+            modal.style.display = "none";
+        };
+
+        // Editar profesor
+        function editarProfesor(row) {
+            editIndex = Array.from(profesoresBody.children).indexOf(row);
+            document.getElementById("formTitle").textContent = "Editar Profesor";
+
+            profesorForm.nombre.value = row.children[0].textContent;
+            profesorForm.apellido.value = row.children[1].textContent;
+            profesorForm.email.value = row.children[2].textContent;
+            profesorForm.telefono.value = row.children[3].textContent;
+
+            modal.style.display = "flex";
+        }
+
+        // Borrar profesor
+        function borrarProfesor(row) {
+            if (confirm("¿Estás seguro de borrar este registro de profesor?")) {
+                row.remove();
+            }
+        }
+
+        // Buscar por nombre o apellido
+        btnBuscar.onclick = () => {
+            const filtro = filtroNombre.value.toLowerCase();
+            for (let row of profesoresBody.children) {
+                const nombreCompleto = (row.children[0].textContent + " " + row.children[1].textContent).toLowerCase();
+                row.style.display = (filtro && !nombreCompleto.includes(filtro)) ? "none" : "";
+            }
+        };
+
+        // Reiniciar filtros
+        btnReset.onclick = () => {
+            filtroNombre.value = "";
+            for (let row of profesoresBody.children) {
+                row.style.display = "";
+            }
+        };
+    </script>
+</body>
+</html>
